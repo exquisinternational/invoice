@@ -314,31 +314,34 @@
         margin: { left: margin, right: margin }
       });
 
-      const afterTableY = doc.lastAutoTable.finalY + 8;
+      const afterTableY = doc.lastAutoTable.finalY + 4;
+
+      // Total block - moved right under the table
+      doc.setFont(fontName, 'bold');
+      doc.setFontSize(12);
+      const label = 'Total Amount 總金額：HKD ';
+      const labelW = doc.getTextWidth(label);
+      // Format number with commas
+      const formattedAmount = new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(grandTotal);
+      const amtW = doc.getTextWidth(formattedAmount);
+      const xRight = 210 - margin;
+      doc.text(label, xRight - (labelW + amtW), afterTableY + 8);
+      doc.text(formattedAmount, xRight - amtW, afterTableY + 8);
+
+      const afterTotalY = afterTableY + 8 + 3; // 0.5 line spacing after total
 
       // Payment Method
       const paymentMethod = (form.get('paymentMethod')||'').trim();
       if(paymentMethod){
         doc.setFont(fontName, 'bold');
-        doc.text('Payment Method 付款方式：', margin, afterTableY);
+        doc.text('Payment Method 付款方式：', margin, afterTotalY);
         doc.setFont(fontName, 'normal');
         const paymentLines = doc.splitTextToSize(paymentMethod, 210 - margin*2);
-        doc.text(paymentLines, margin, afterTableY + 7);
-        y = afterTableY + 7 + paymentLines.length*6 + 4;
-      } else {
-        y = afterTableY;
+        doc.text(paymentLines, margin, afterTotalY + 7);
       }
-
-      // Total block
-      doc.setFont(fontName, 'bold');
-      doc.setFontSize(12);
-      const label = 'Total Amount 總金額：HKD $ ';
-      const labelW = doc.getTextWidth(label);
-      const amt = grandTotal.toFixed(2);
-      const amtW = doc.getTextWidth(amt);
-      const xRight = 210 - margin;
-      doc.text(label, xRight - (labelW + amtW), y + 8);
-      doc.text(amt, xRight - amtW, y + 8);
 
       // Save
       const fileName = `Invoice_${(form.get('invoiceNo')||'')}_${(form.get('invoiceDate')||'')}.pdf`;
