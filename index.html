@@ -55,6 +55,22 @@
 
     <form id="invoiceForm" class="form">
       <div class="section">
+        <h2>Company Information</h2>
+        <div class="row">
+          <div class="group full">
+            <label for="companyAddress">Company Address / 公司地址</label>
+            <textarea id="companyAddress" name="companyAddress" rows="2">新界粉嶺嶺仔安居花園306號三樓</textarea>
+          </div>
+        </div>
+        <div class="row">
+          <div class="group">
+            <label for="companyPhone">Company Phone / 公司電話</label>
+            <input id="companyPhone" name="companyPhone" value="93859172" />
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
         <h2>Invoice Information</h2>
         <div class="row">
           <div class="group">
@@ -105,7 +121,10 @@
         <div class="row">
           <div class="group full">
             <label for="paymentMethod">Payment Method / 付款方式</label>
-            <textarea id="paymentMethod" name="paymentMethod" rows="2" placeholder="Bank transfer, Cash, Cheque, etc."></textarea>
+            <textarea id="paymentMethod" name="paymentMethod" rows="4" placeholder="Bank transfer, Cash, Cheque, etc.">Bank transfer 銀行轉賬
+Bank of China 中國銀行
+Account Name 帳戶名稱: Exquis International
+Account Number 帳戶號碼: 012-55120072480</textarea>
           </div>
         </div>
       </div>
@@ -224,14 +243,34 @@
       doc.setFont(fontName, 'bold');
       doc.setFontSize(18);
       doc.text('玲瓏國際 Exquis International', margin, y);
-      doc.setFontSize(28);
-      doc.text('INVOICE', 210 - margin - doc.getTextWidth('INVOICE'), y);
-      y += 20;
+      y += 8;
+      
+      // Company details with smaller font
+      doc.setFont(fontName, 'normal');
+      doc.setFontSize(10);
+      const companyAddress = (form.get('companyAddress')||'').trim();
+      if(companyAddress) {
+        doc.text(`Address 地址: ${companyAddress}`, margin, y);
+        y += 6;
+      }
+      const companyPhone = (form.get('companyPhone')||'').trim();
+      if(companyPhone) {
+        doc.text(`Phone 電話: ${companyPhone}`, margin, y);
+        y += 8;
+      } else {
+        y += 2;
+      }
 
-      // Invoice meta
+      // INVOICE and Invoice details on the right
+      doc.setFont(fontName, 'bold');
+      doc.setFontSize(28);
+      const invoiceX = 210 - margin - doc.getTextWidth('INVOICE');
+      doc.text('INVOICE', invoiceX, margin);
+      
       doc.setFont(fontName, 'normal');
       doc.setFontSize(12);
-      doc.text(`Invoice No 發票號碼：${form.get('invoiceNo')||''}`, margin, y);
+      const invoiceNo = `Invoice No 發票號碼：${form.get('invoiceNo')||''}`;
+      doc.text(invoiceNo, invoiceX, margin + 12);
       
       // Format date to DD/MM/YYYY
       const dateValue = form.get('invoiceDate') || '';
@@ -244,8 +283,10 @@
         formattedDate = `${day}/${month}/${year}`;
       }
       
-      doc.text(`Date 日期：${formattedDate}`, margin, y+8);
-      y += 25;
+      const dateText = `Date 日期：${formattedDate}`;
+      doc.text(dateText, invoiceX, margin + 22);
+      
+      y += 15;
 
       // Client
       doc.setFont(fontName, 'normal');
